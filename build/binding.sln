@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Bot_Modules)", "..\Desktop\ShopifyStuff\Bot_Modules", "{39708A97-3533-A1E9-0B6B-EB91C412B7E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Desktop)", "..\Desktop", "{D4821544-C1E4-E4CE-51E8-5DA62B62A2F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(ShopifyStuff)", "..\Desktop\ShopifyStuff", "{CC3C4C18-A513-4F32-5C5F-8F4CC9BABBD8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(node-addon-api)", "..\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api", "{C0682826-66E5-5B9E-CE25-7CB0E640CE9D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(node_modules)", "..\Desktop\ShopifyStuff\Bot_Modules\node_modules", "{EFECEF8E-1AAA-C751-FD83-CA235FEFDF2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(src)", "..\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api\src", "{23FBCC46-0CAE-8650-7662-FFA3AFE552CA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nothing", "..\node_modules\node-addon-api\src\nothing.vcxproj", "{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testaddon", "testaddon.vcxproj", "{DD05541A-C58C-4B86-39CB-2DEB114B2B0E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB} = {CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}.Debug|Win32.Build.0 = Debug|Win32
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}.Release|Win32.ActiveCfg = Release|Win32
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB}.Release|Win32.Build.0 = Release|Win32
+		{DD05541A-C58C-4B86-39CB-2DEB114B2B0E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD05541A-C58C-4B86-39CB-2DEB114B2B0E}.Debug|Win32.Build.0 = Debug|Win32
+		{DD05541A-C58C-4B86-39CB-2DEB114B2B0E}.Release|Win32.ActiveCfg = Release|Win32
+		{DD05541A-C58C-4B86-39CB-2DEB114B2B0E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EFECEF8E-1AAA-C751-FD83-CA235FEFDF2F} = {39708A97-3533-A1E9-0B6B-EB91C412B7E3}
+		{CC3C4C18-A513-4F32-5C5F-8F4CC9BABBD8} = {D4821544-C1E4-E4CE-51E8-5DA62B62A2F5}
+		{39708A97-3533-A1E9-0B6B-EB91C412B7E3} = {CC3C4C18-A513-4F32-5C5F-8F4CC9BABBD8}
+		{23FBCC46-0CAE-8650-7662-FFA3AFE552CA} = {C0682826-66E5-5B9E-CE25-7CB0E640CE9D}
+		{C0682826-66E5-5B9E-CE25-7CB0E640CE9D} = {EFECEF8E-1AAA-C751-FD83-CA235FEFDF2F}
+		{CD2FFB1A-824A-B783-DB0F-BA01BE504AAB} = {23FBCC46-0CAE-8650-7662-FFA3AFE552CA}
+	EndGlobalSection
+EndGlobal

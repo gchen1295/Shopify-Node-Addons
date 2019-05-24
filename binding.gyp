@@ -17,11 +17,11 @@
           "D:\\vcpkg\\installed\\x86-windows\\lib\\**"
         ],
         'dependencies': [
-            "<!(node -p \"require('node-addon-api').gyp\")"
+            "<!(node -p \"require('node-addon-api').gyp\")",
         ],
         "msbuild_settings": {
           "Link": {
-            "ImageHasSafeExceptionHandlers": "false"
+            "ImageHasSafeExceptionHandlers": "false",
           }
         },
         'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ]
