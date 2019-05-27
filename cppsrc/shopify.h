@@ -1,22 +1,16 @@
 #include <napi.h>
-#include <bsoncxx/json.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
-#include <mongocxx/client.hpp>
-#include <mongocxx/stdx.hpp>
-#include <mongocxx/uri.hpp>
-#include <mongocxx/instance.hpp>
-
-using bsoncxx::builder::stream::close_array;
-using bsoncxx::builder::stream::close_document;
-using bsoncxx::builder::stream::document;
-using bsoncxx::builder::stream::finalize;
-using bsoncxx::builder::stream::open_array;
-using bsoncxx::builder::stream::open_document;
+#include <cpr/cpr.h>
 
 namespace Shopify{
-  Napi::String Shopify::PostWrapper(const Napi::CallbackInfo &info){
-    Napi::Env env = info.Env();
-    std::string s = Shopify::createLicense(info[0].ToString());
-    return Napi::String::New(env,s);
-  }
+  std::string cartProduct(std::string domain, std::string pid);
+  std::string getProductData();
+  std::string getAllProducts(std::string domain);
+  void monitorProduct();
+
+  Napi::String MonitorWrapper();
+  Napi::String CartProduct(const Napi::CallbackInfo &info);
+  Napi::String GetProdData(const Napi::CallbackInfo &info);
+  Napi::String GetAllProducts(const Napi::CallbackInfo &info);
+
+  Napi::Object Init(Napi::Env env, Napi::Object exports);
 }

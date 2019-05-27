@@ -1,20 +1,19 @@
 {
     "targets": [{
-        "target_name": "testaddon",
+        "target_name": "botmodules",
         "cflags!": [ "-fno-exceptions" ],
         "cflags_cc!": [ "-fno-exceptions" ],
         "sources": [
             "main.cpp",
-            "cppsrc/httptest.cpp"
+            "cppsrc/httptest.cpp",
+            "cppsrc/shopify.cpp"
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")",
-            "D:\\vcpkg\\installed\\x86-windows\\include\\",
-            "D:\\vcpkg\\installed\\x86-windows\\**"
+            "D:\\Desktop\\vcpkg-master\\installed\\x64-windows\\include\\**"
         ],
         'libraries': [
-          "D:\\vcpkg\\installed\\x86-windows\\lib\\cpr.lib",
-          "D:\\vcpkg\\installed\\x86-windows\\lib\\**"
+          "D:\\Desktop\\vcpkg-master\\installed\\x64-windows\\lib\\**"
         ],
         'dependencies': [
             "<!(node -p \"require('node-addon-api').gyp\")",

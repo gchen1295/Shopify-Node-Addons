@@ -2,8 +2,7 @@
 
 namespace apifunctions{
 
-std::string createLicense(std::string url);
-//std::string getLicense(std::string key);
+std::string createLicense();
 std::string authLicense(std::string key, std::string hwid);
 std::string createTask( std::string website, std::string keywords, std::string size, int numTasks, int numcheckouts );
 

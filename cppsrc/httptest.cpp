@@ -1,4 +1,3 @@
-#include <cpr/cpr.h>
 #include <napi.h>
 #include <iostream>
 #include "httptest.h"
@@ -6,19 +5,8 @@
 #include <cstdint>
 #include <iostream>
 #include <vector>
-//#include <bsoncxx/json.hpp>
-//#include <bsoncxx/builder/stream/document.hpp>
-//#include <mongocxx/client.hpp>
-//#include <mongocxx/stdx.hpp>
-//#include <mongocxx/uri.hpp>
-//#include <mongocxx/instance.hpp>
-
-//using bsoncxx::builder::stream::close_array;
-//using bsoncxx::builder::stream::close_document;
-//using bsoncxx::builder::stream::document;
-//using bsoncxx::builder::stream::finalize;
-//using bsoncxx::builder::stream::open_array;
-//using bsoncxx::builder::stream::open_document;
+#include <cpr/cpr.h>
+#include <curl/curl.h>
 
 std::string apifunctions::createLicense(){
   auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/admin/createLicense"}, cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},cpr::Payload{{}});
@@ -36,7 +24,7 @@ std::string apifunctions::authLicense(std::string key, std::string hwid){
 }
 
 std::string apifunctions::createTask(std::string website, std::string keywords, std::string size, int numTasks, int numCheckouts ){
-  // Clean url her
+  // Clean url here
   // Parse keywords here
   
   auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/task/create"},
@@ -44,8 +32,8 @@ std::string apifunctions::createTask(std::string website, std::string keywords, 
                       cpr::Payload{ {"website", website },
                                     {"keywords", keywords },
                                     {"size", size },
-                                    {"numTasks", numTasks },
-                                    {"numCheckouts", numCheckouts }});
+                                    {"numTasks", static_cast<char>(numTasks) },
+                                    {"numCheckouts", static_cast<char>(numCheckouts) }});
   return r.text;
 }
 
