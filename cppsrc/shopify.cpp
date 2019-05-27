@@ -53,7 +53,6 @@ Napi::String Shopify::CartProduct(const Napi::CallbackInfo &info){
 Napi::String Shopify::GetAllProducts(const Napi::CallbackInfo &info){
   Napi::Env env = info.Env();
   if(!info[0].IsString() || info.Length() < 1) throw Napi::Error::New(env, "Must be of type string!");
-  std::cout << info[0].ToString();
   std::string param1 = info[0].ToString();
   std::string s = Shopify::getAllProducts(param1);
   return Napi::String::New(env,s);
