@@ -1,25 +1,28 @@
 const axios = require("axios");
 const Fuse = require('fuse.js');
 const { performance } = require('perf_hooks')
-const http = require('./build/Release/botmodules.node');
-//console.log(http.post(''));
-//console.log(http.authLicense("L62PL-DXHFQ-2XQ91-X76RN-2M4AU","Test"));
+const botmodules = require('./build/Release/botmodules.node');
 
 async function getProducts(domain) { // Add error handling here 
   let r = await axios.get(`https://${domain}/products.json`);
   return(r.data['products']);
 }
+
+async function cartProductNode(domain, variant) { // Add error handling here 
+  let r = await axios.post(`https://${domain}/cart/add.json`,{id: variant, quantity: "1"});
+  return(r.data);
+}
 let GetAllcpp = () =>{
   return new Promise((res,rej)=>{
-    res(http.getAllProducts("lapstoneandhammer.com"));
+    res(botmodules.getAllProducts("lapstoneandhammer.com"));
   })
 }
 
-let test = async () =>{
+let test1 = async () =>{
   let s1 = performance.now();
   for(let i = 0; i < 15 ; i++){
-    await GetAllcpp();
-    //console.log(t)
+    let t  = await GetAllcpp();
+    console.log(t)
   }
   let e1 = performance.now();
   let s2 = performance.now();
@@ -33,7 +36,37 @@ let test = async () =>{
   console.log(`Time of CPP Native: ${d1}`)
   console.log(`Time of Node Module: ${d2}`)
 }
+let test2 = async () =>{
+  let s1 = performance.now();
+  let t1 = await botmodules.cartProduct("lapstoneandhammer.com","19339429773369");
+  let j1 = JSON.parse(t1);
+  let e1 = performance.now();
+  let s2 = performance.now();
+  let t2 = await cartProductNode("deadstock.ca","22337760821333");
+  let e2 = performance.now();
+  let d1 = e1 - s1;
+  let d2 = e2 - s2;
+  console.log(`Time of CPP Native: ${d1}`)
+  //console.log(t1)
+  console.log(`Time of Node Only: ${d2}`)
+  //.log(t2)
+}
 
-test();
-
-module.exports = http;
+//test1()
+let kws = [];
+kws.push("blue");
+//kws.push("light");
+kws.push("jordan");
+// kws.push("Jordan");
+// kws.push("Jordan");
+// kws.push("Defiant");
+// kws.push("Jordan");
+let kw = kws.join('\t')
+//botmodules.getAllProducts("deadstock.ca")
+let s1 = performance.now();
+//botmodules.findProductM1("deadstock.ca", kw);
+botmodules.findProductM2("deadstock.ca", kw);
+let e1 = performance.now();
+let d1 = e1 - s1;
+console.log(`Time of CPP Native: ${d1}`)
+module.exports = botmodules;
