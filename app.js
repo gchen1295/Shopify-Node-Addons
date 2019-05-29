@@ -54,9 +54,9 @@ let test2 = async () =>{
 
 //test1()
 let kws = [];
-kws.push("blue");
-//kws.push("light");
-kws.push("jordan");
+kws.push("nike");
+//kws.push("black");
+//kws.push("fossil");
 // kws.push("Jordan");
 // kws.push("Jordan");
 // kws.push("Defiant");
@@ -65,7 +65,9 @@ let kw = kws.join('\t')
 //botmodules.getAllProducts("deadstock.ca")
 let s1 = performance.now();
 //botmodules.findProductM1("deadstock.ca", kw);
-botmodules.findProductM2("deadstock.ca", kw);
+let res = botmodules.findProductM2("a-ma-maniere.com", kws);
+let st = JSON.parse(res);
+console.log(st);
 let e1 = performance.now();
 let d1 = e1 - s1;
 console.log(`Time of CPP Native: ${d1}`)

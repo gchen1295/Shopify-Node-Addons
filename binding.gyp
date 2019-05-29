@@ -6,14 +6,15 @@
         "sources": [
             "main.cpp",
             "cppsrc/httptest.cpp",
-            "cppsrc/shopify.cpp"
+            "cppsrc/shopify.cpp",
+            "cppsrc/product.cpp"
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")",
-            "./dependencies\\x64-windows\\include\\**"
+            "D:\\Desktop\\vcpkg-master\\installed\\x64-windows\\include**"
         ],
         'libraries': [
-          "./dependencies\\x64-windows\\lib\\**"
+          "D:\\Desktop\\vcpkg-master\\installed\\x64-windows\\lib\\**"
         ],
         'dependencies': [
             "<!(node -p \"require('node-addon-api').gyp\")",

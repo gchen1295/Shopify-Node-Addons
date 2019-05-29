@@ -1,12 +1,9 @@
 #include <napi.h>
 #include <iostream>
 #include "httptest.h"
-
-#include <cstdint>
 #include <iostream>
 #include <vector>
 #include <cpr/cpr.h>
-#include <curl/curl.h>
 
 std::string apifunctions::createLicense(){
   auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/admin/createLicense"}, cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},cpr::Payload{{}});

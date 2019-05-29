@@ -11,15 +11,15 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
-std::string Shopify::cartProduct(std::string domain, std::string pid)
+// ======= HELPER FUNCTIONS ============
+
+void unique(std::vector<std::string> &keywords)
 {
-  std::string url = "https://" + domain + "/cart/add.json";
-  auto r1 = cpr::Post(cpr::Url{url},
-                      cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},
-                      cpr::Payload{{"id", pid},
-                                   {"quantity", "1"}});
-  return r1.text;
-};
+  std::vector<std::string>::iterator it;
+  std::sort(keywords.begin(), keywords.end());
+  it = std::unique(keywords.begin(), keywords.end());
+  keywords.resize(std::distance(keywords.begin(), it));
+}
 
 void split(std::string sentence, std::string delimiter, std::vector<std::string> &words)
 {
@@ -34,8 +34,14 @@ void split(std::string sentence, std::string delimiter, std::vector<std::string>
   }
 }
 
-void monitorProduct(){
-
+std::string Shopify::cartProduct(std::string domain, std::string pid)
+{
+  std::string url = "https://" + domain + "/cart/add.json";
+  auto r1 = cpr::Post(cpr::Url{url},
+                      cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},
+                      cpr::Payload{{"id", pid},
+                                   {"quantity", "1"}});
+  return r1.text;
 };
 
 std::string Shopify::getAllProducts(std::string domain)
@@ -57,22 +63,13 @@ std::string Shopify::getAllProducts(std::string domain)
   return r1.text;
 };
 
-void unique(std::vector<std::string> &keywords)
+std::string Shopify::findProductByTitle(std::string domain, std::vector<std::string> keywords)
 {
-  std::vector<std::string>::iterator it;
-  std::sort(keywords.begin(), keywords.end());
-  it = std::unique(keywords.begin(), keywords.end());
-  keywords.resize(std::distance(keywords.begin(), it));
-}
-
-std::string Shopify::findProductByTitle(std::string domain, std::string keywords)
-{
+  ProductCollection pc = ProductCollection();
   int i = 0;
-  std::vector<std::string> words;
   std::vector<std::string>::iterator itr;
   std::vector<std::string> foundtitle;
-  split(keywords, "\t", words);
-  unique(words);
+  unique(keywords);
   std::string products = getAllProducts(domain);
 
   rapidjson::Document doc;
@@ -80,7 +77,7 @@ std::string Shopify::findProductByTitle(std::string domain, std::string keywords
   assert(doc["products"].IsArray());
   const rapidjson::Value &p = doc["products"];
 
-  for (itr = words.begin(); itr != words.end(); ++itr)
+  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
   {
     for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
     {
@@ -93,86 +90,125 @@ std::string Shopify::findProductByTitle(std::string domain, std::string keywords
       {
         //std::cout << "Found in title: " << title << std::endl;
         //std::cout << "Matched keyword: " << kw << std::endl;
+
+        //BUILD OUR PRODUCT
+        std::string id = std::to_string(p[i]["id"].GetInt64());
+        std::string handle = p[i]["handle"].GetString();
+        pc.createProduct(id, title, handle);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+        {
+          std::string id2 = std::to_string(var[i]["id"].GetInt64());
+          std::string vtitle = var[i]["title"].GetString();
+          std::string sku = var[i]["sku"].GetString();
+          std::string price = var[i]["price"].GetString();
+          pc.addVariant(id, id2, vtitle, sku, price);
+        }
         foundtitle.push_back(title);
       }
     }
   }
   //For each product in product title and product handle eliminate all that dont contain a kw
   unique(foundtitle);
-   for (itr = words.begin(); itr != words.end(); ++itr)
-   {
-     std::string kw = *itr;
-     std::vector<std::string>::iterator itr2;
-     for (itr2 = foundtitle.begin(); itr2 != foundtitle.end(); ++itr2)
-     {    
-       std::string title = *itr2;
-       if(title.find(kw) == std::string::npos)
-       {
-         foundtitle.erase(itr2--);
-       }
-     
-     }
-   }
+  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+  {
+    std::string kw = *itr;
+    std::vector<std::string>::iterator itr2;
+    for (itr2 = foundtitle.begin(); itr2 != foundtitle.end(); ++itr2)
+    {
+      std::string title = *itr2;
+      if (title.find(kw) == std::string::npos)
+      {
+        foundtitle.erase(itr2--);
+      }
+    }
+  }
+  std::string response = "";
   for (itr = foundtitle.begin(); itr != foundtitle.end(); ++itr)
   {
-    std::cout << *itr << std::endl;
+    Product *pt = pc.findProductByTitle(*itr);
+    if (pt != nullptr)
+    {
+      pt->printFields();
+      response += pt->getProduct();
+      response += ",";
+    }
   }
-  return *foundtitle.begin();
+  if (response != "")
+  {
+    response.pop_back();
+  }
+  response = "[" + response + "]";
+  return response;
   //BUILD PRODUCT OBJECT OR RETURN ARRAY OF PRODUCTS MATCHING?
+  // For each product in our array create a json object
 }
 
-std::string Shopify::findProductByHandle(std::string domain, std::string keywords)
+std::string Shopify::findProductByHandle(std::string domain, std::vector<std::string> keywords)
 {
   int i = 0;
-  std::vector<std::string> words;
+  ProductCollection pc = ProductCollection();
   std::vector<std::string>::iterator itr;
   std::vector<std::string> foundhandle;
-  split(keywords, "\t", words);
-  unique(words);
+  unique(keywords);
   std::string products = getAllProducts(domain);
 
   rapidjson::Document doc;
   doc.Parse(products.c_str());
   assert(doc["products"].IsArray());
   const rapidjson::Value &p = doc["products"];
-
-  for (itr = words.begin(); itr != words.end(); ++itr)
+  // === FIND ===
+  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
   {
     for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
     {
       std::string kw = *itr;
       std::string handle = p[i]["handle"].GetString();
-      //int productid = p[i]["id"].GetInt();
+      std::string title = p[i]["title"].GetString();
+      std::string id = std::to_string(p[i]["id"].GetInt64());
       std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
       std::transform(handle.begin(), handle.end(), handle.begin(), ::tolower);
       if (handle.find(kw) != std::string::npos)
       {
-        //std::cout << "Found in handle: " << handle << std::endl;
-        //std::cout << "Matched keyword: " << kw << std::endl;
+        //BUILD OUR PRODUCT
+        std::string id = p[i]["title"].GetString();
+        std::string handle = p[i]["handle"].GetString();
+        pc.createProduct(id, title, handle);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+        {
+          std::string id2 = std::to_string(var[i]["id"].GetInt64());
+          std::string vtitle = var[i]["title"].GetString();
+          std::string sku = var[i]["sku"].GetString();
+          std::string price = var[i]["price"].GetString();
+          pc.addVariant(id, id2, vtitle, sku, price);
+        }
         foundhandle.push_back(handle);
       }
     }
   }
-  //For each product in product title and product handle eliminate all that dont contain a kw
-  unique(foundhandle);
-
-   for (itr = words.begin(); itr != words.end(); ++itr)
-   {
-     std::vector<std::string>::iterator itr2;
-    for (itr2 = foundhandle.begin(); itr2 != foundhandle.end(); ++itr2)
-    {
-      std::string handle = *itr2;
-      if (itr2->find(*itr) == std::string::npos)
-      {
-        foundhandle.erase(itr2--);
-      }
-    }
-   }
+  //For each product in product title and product handle eliminate all that dont contain a kw   === FILTER ===
+  std::string response = "";
   for (itr = foundhandle.begin(); itr != foundhandle.end(); ++itr)
   {
-    std::cout << *itr << std::endl;
+    Product *pt = pc.findProductByHandle(*itr);
+    if (pt != nullptr)
+    {
+      pt->printFields();
+      response += pt->getProduct();
+      response += ",";
+    }
   }
-  return  *foundhandle.begin();
+  if (response != "")
+  {
+    response.pop_back();
+  }
+  response = "[" + response + "]";
+  return response;
   //BUILD OUR PRODUCT OBJECT HERE
 }
 
@@ -211,12 +247,24 @@ Napi::String Shopify::FindProductByTitle(const Napi::CallbackInfo &info)
   {
     Napi::Error::New(env, "Invalid number of arguments").ThrowAsJavaScriptException();
   }
-  if (!info[0].IsString() || !info[1].IsString())
+  if (!info[0].IsString())
   {
-    Napi::Error::New(env, "Must be of type string!").ThrowAsJavaScriptException();
+    Napi::Error::New(env, "Must be a string!").ThrowAsJavaScriptException();
+  }
+  if (!info[1].IsArray())
+  {
+    Napi::Error::New(env, "Keywords must be an array!").ThrowAsJavaScriptException();
   }
   std::string param1 = info[0].ToString();
-  std::string param2 = info[1].ToString();
+  std::vector<std::string> param2;
+  Napi::Array arr = Napi::Array::Array(env, info[1]);
+  for (size_t i = 0; i < arr.Length(); ++i)
+  {
+    Napi::Value val = arr.Get(i);
+    // ++ ASSERT => val is string
+    std::string keyword = val.ToString();
+    param2.push_back(keyword);
+  }
   std::string s = Shopify::findProductByTitle(param1, param2);
   return Napi::String::New(env, s);
 }
@@ -228,12 +276,24 @@ Napi::String Shopify::FindProductByHandle(const Napi::CallbackInfo &info)
   {
     Napi::Error::New(env, "Invalid number of arguments").ThrowAsJavaScriptException();
   }
-  if (!info[0].IsString() || !info[1].IsString())
+  if (!info[1].IsArray())
   {
-    Napi::Error::New(env, "Must be of type string!").ThrowAsJavaScriptException();
+    Napi::Error::New(env, "Keywords must be an array!").ThrowAsJavaScriptException();
+  }
+  if (!info[0].IsString())
+  {
+    Napi::Error::New(env, "Site must be a string!").ThrowAsJavaScriptException();
   }
   std::string param1 = info[0].ToString();
-  std::string param2 = info[1].ToString();
+  std::vector<std::string> param2;
+  Napi::Array arr = Napi::Array::Array(env, info[1]);
+  for (size_t i = 0; i < arr.Length(); ++i)
+  {
+    Napi::Value val = arr.Get(i);
+    // ++ ASSERT => val is string
+    std::string keyword = val.ToString();
+    param2.push_back(keyword);
+  }
   std::string s = Shopify::findProductByHandle(param1, param2);
   return Napi::String::New(env, s);
 }

@@ -1,12 +1,13 @@
 #include <napi.h>
 #include <cpr/cpr.h>
+#include "product.h"
 
 namespace Shopify{
   std::string cartProduct(std::string domain, std::string pid);
   std::string getProductData();
   std::string getAllProducts(std::string domain);
-  std::string findProductByTitle(std::string domain, std::string keywords);
-  std::string findProductByHandle(std::string domain, std::string keywords);
+  std::string findProductByTitle(std::string domain, std::vector<std::string> keywords);
+  std::string findProductByHandle(std::string domain, std::vector<std::string> keywords);
   void monitorProduct();
 
   Napi::String MonitorWrapper();

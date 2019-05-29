@@ -46,39 +46,39 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;..\dependencies\x64-windows\include\**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;D:\Desktop\vcpkg-master\installed\x64-windows\include**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=botmodules;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\Chen\.node-gyp\12.3.1\x64\node.lib&quot;;.\dependencies\x64-windows\lib\**.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\Chen\.node-gyp\12.3.1\x64\node.lib&quot;;D:\Desktop\vcpkg-master\installed\x64-windows\lib\**.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <TargetExt>.node</TargetExt>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;..\dependencies\x64-windows\include\**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;D:\Desktop\vcpkg-master\installed\x64-windows\include**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=botmodules;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;..\dependencies\x64-windows\include\**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;D:\Desktop\vcpkg-master\installed\x64-windows\include**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DisableSpecificWarnings>4351;4355;4800;4251;4275;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=botmodules;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\Chen\.node-gyp\12.3.1\x64\node.lib&quot;;.\dependencies\x64-windows\lib\**.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\Chen\.node-gyp\12.3.1\x64\node.lib&quot;;D:\Desktop\vcpkg-master\installed\x64-windows\lib\**.lib</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <TargetExt>.node</TargetExt>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;..\dependencies\x64-windows\include\**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Chen\.node-gyp\12.3.1\include\node;C:\Users\Chen\.node-gyp\12.3.1\src;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\config;C:\Users\Chen\.node-gyp\12.3.1\deps\openssl\openssl\include;C:\Users\Chen\.node-gyp\12.3.1\deps\uv\include;C:\Users\Chen\.node-gyp\12.3.1\deps\zlib;C:\Users\Chen\.node-gyp\12.3.1\deps\v8\include;D:\Desktop\ShopifyStuff\Bot_Modules\node_modules\node-addon-api;D:\Desktop\vcpkg-master\installed\x64-windows\include**;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=botmodules;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -89,6 +89,7 @@
     <ClCompile Include="..\main.cpp"/>
     <ClCompile Include="..\cppsrc\httptest.cpp"/>
     <ClCompile Include="..\cppsrc\shopify.cpp"/>
+    <ClCompile Include="..\cppsrc\product.cpp"/>
     <ClCompile Include="D:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <ItemGroup>
