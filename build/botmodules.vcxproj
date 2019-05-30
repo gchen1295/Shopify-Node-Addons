@@ -88,8 +88,10 @@
   <ItemGroup>
     <ClCompile Include="..\main.cpp"/>
     <ClCompile Include="..\cppsrc\httptest.cpp"/>
-    <ClCompile Include="..\cppsrc\shopify.cpp"/>
     <ClCompile Include="..\cppsrc\product.cpp"/>
+    <ClCompile Include="..\cppsrc\monitor.cpp"/>
+    <ClCompile Include="..\cppsrc\asyncMonitor.cpp"/>
+    <ClCompile Include="..\cppsrc\shopify.cpp"/>
     <ClCompile Include="D:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <ItemGroup>

@@ -6,8 +6,10 @@
         "sources": [
             "main.cpp",
             "cppsrc/httptest.cpp",
+            "cppsrc/product.cpp",
+            "cppsrc/monitor.cpp",
+            "cppsrc/asyncMonitor.cpp",
             "cppsrc/shopify.cpp",
-            "cppsrc/product.cpp"
         ],
         'include_dirs': [
             "<!@(node -p \"require('node-addon-api').include\")",

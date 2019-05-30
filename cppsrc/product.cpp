@@ -1,9 +1,8 @@
-#include <napi.h>
 #include "product.h"
 
-void Product::addVariant(std::string id, std::string title, std::string sku, std::string price)
+void Product::addVariant(std::string id, std::string title, std::string sku, std::string price, std::string available)
 {
-  Variant *v = new Variant(id, title, sku, price);
+  Variant *v = new Variant(id, title, sku, price, available);
   variants.emplace(id, v);
 }
 
@@ -40,15 +39,17 @@ std::string Product::getVariants()
     std::string vtitle = var.second->getTitle();
     std::string vsku = var.second->getSKU();
     std::string vprice = var.second->getPrice();
+    //std::string vavailable = var.second->getAvailable();
     vid.erase(std::remove(vid.begin(), vid.end(), '"'), vid.end());
     vtitle.erase(std::remove(vtitle.begin(), vtitle.end(), '"'), vtitle.end());
     vsku.erase(std::remove(vsku.begin(), vsku.end(), '"'), vsku.end());
     vprice.erase(std::remove(vprice.begin(), vprice.end(), '"'), vprice.end());
     vstr += "{";
-    vstr += "\"id\":\"" + vid + "\",";
-    vstr += "\"title\":\"" + vtitle + "\",";
-    vstr += "\"sku\":\"" + vsku + "\",";
-    vstr += "\"price\":\"" + vprice + "\"";
+    vstr += "\"id\":\"" + var.second->getID() + "\",";
+    vstr += "\"title\":\"" + var.second->getTitle() + "\",";
+    vstr += "\"sku\":\"" + var.second->getSKU() + "\",";
+    vstr += "\"price\":\"" + var.second->getPrice() + "\",";
+    vstr += "\"available\":\"" + var.second->getAvailable() + "\"";
     vstr += "},";
   }
   vstr.pop_back();
@@ -99,12 +100,13 @@ std::string Product::getHandle()
 
 // ================= VARIANTS ===========================
 
-Variant::Variant(std::string id, std::string title, std::string sku, std::string price)
+Variant::Variant(std::string id, std::string title, std::string sku, std::string price, std::string available)
 {
   this->id = id;
   this->title = title;
   this->sku = sku;
   this->price = price;
+  this->available = available;
 }
 
 std::string Variant::getID()
@@ -123,6 +125,21 @@ std::string Variant::getPrice()
 {
   return this->price;
 }
+std::string Variant::getAvailable()
+{
+  return this->available;
+}
+bool Variant::isAvailable()
+{
+  if (this->available == "true")
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 
 // ================= PRODUCTS COLLECTION ===========================
 
@@ -133,14 +150,22 @@ void ProductCollection::createProduct(std::string id, std::string title, std::st
   products.emplace(id, p);
 }
 
-void ProductCollection::addVariant(std::string productID, std::string id, std::string title, std::string sku, std::string price)
+void ProductCollection::addVariant(std::string productID, std::string id, std::string title, std::string sku, std::string price, std::string available)
 {
-  products[productID]->addVariant(id, title, sku, price);
+  products[productID]->addVariant(id, title, sku, price, available);
 }
 
 void ProductCollection::removeProduct(std::string id)
 {
   products.erase(id);
+}
+
+void ProductCollection::printAll()
+{
+  for (auto &f : products)
+  {
+    f.second->printFields();
+  }
 }
 
 Product *ProductCollection::findProductByID(std::string id)

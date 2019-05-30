@@ -1,9 +1,4 @@
-#include <napi.h>
-#include <iostream>
 #include "httptest.h"
-#include <iostream>
-#include <vector>
-#include <cpr/cpr.h>
 
 std::string apifunctions::createLicense(){
   auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/admin/createLicense"}, cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},cpr::Payload{{}});
@@ -77,7 +72,7 @@ Napi::String apifunctions::NewTaskWrapper(const Napi::CallbackInfo &info){
 }
 
 Napi::Object apifunctions::Init(Napi::Env env, Napi::Object exports){
-  exports.Set("post", Napi::Function::New(env, apifunctions::PostWrapper));
+  exports.Set("createLicense", Napi::Function::New(env, apifunctions::PostWrapper));
   exports.Set("authLicense", Napi::Function::New(env, apifunctions::AuthWrapper));
   return exports;
 }

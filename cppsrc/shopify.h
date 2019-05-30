@@ -1,14 +1,13 @@
+#ifndef _SHOPIFY_H_
+#define _SHOPIFY_H_
 #include <napi.h>
+#include "monitor.h"
 #include <cpr/cpr.h>
-#include "product.h"
+
+
 
 namespace Shopify{
   std::string cartProduct(std::string domain, std::string pid);
-  std::string getProductData();
-  std::string getAllProducts(std::string domain);
-  std::string findProductByTitle(std::string domain, std::vector<std::string> keywords);
-  std::string findProductByHandle(std::string domain, std::vector<std::string> keywords);
-  void monitorProduct();
 
   Napi::String MonitorWrapper();
   Napi::String CartProduct(const Napi::CallbackInfo &info);
@@ -19,3 +18,5 @@ namespace Shopify{
 
   Napi::Object Init(Napi::Env env, Napi::Object exports);
 }
+
+#endif // !_SHOPIFY_H_

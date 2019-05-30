@@ -1,14 +1,15 @@
 const axios = require("axios");
 const Fuse = require('fuse.js');
 const { performance } = require('perf_hooks')
+const utils = require('util')
 const botmodules = require('./build/Release/botmodules.node');
 
-async function getProducts(domain) { // Add error handling here 
+async function getProducts(domain) { 
   let r = await axios.get(`https://${domain}/products.json`);
   return(r.data['products']);
 }
 
-async function cartProductNode(domain, variant) { // Add error handling here 
+async function cartProductNode(domain, variant) { 
   let r = await axios.post(`https://${domain}/cart/add.json`,{id: variant, quantity: "1"});
   return(r.data);
 }
@@ -47,28 +48,38 @@ let test2 = async () =>{
   let d1 = e1 - s1;
   let d2 = e2 - s2;
   console.log(`Time of CPP Native: ${d1}`)
-  //console.log(t1)
   console.log(`Time of Node Only: ${d2}`)
-  //.log(t2)
+
 }
 
 //test1()
 let kws = [];
 kws.push("nike");
-//kws.push("black");
-//kws.push("fossil");
-// kws.push("Jordan");
-// kws.push("Jordan");
-// kws.push("Defiant");
-// kws.push("Jordan");
 let kw = kws.join('\t')
-//botmodules.getAllProducts("deadstock.ca")
 let s1 = performance.now();
-//botmodules.findProductM1("deadstock.ca", kw);
-let res = botmodules.findProductM2("a-ma-maniere.com", kws);
-let st = JSON.parse(res);
-console.log(st);
-let e1 = performance.now();
-let d1 = e1 - s1;
-console.log(`Time of CPP Native: ${d1}`)
+let res = [];
+
+let getall = utils.promisify(botmodules.findByTitle);
+let getSizes = utils.promisify(botmodules.getSizes);
+// botmodules.getSizes("undefeated.com", 2186306486345, t =>{
+//   let e1 = performance.now();
+//   let d1 = e1 - s1;
+//   console.log(`Time of CPP Native: ${d1}`)
+//   console.log("No Error Occured.")
+//   console.log(t);
+// })
+getSizes("undefeated.com", "2186306486345").then( t =>{
+  let e1 = performance.now();
+  let d1 = e1 - s1;
+  console.log(`Time of CPP Native: ${d1}`)
+  console.log("No Error Occured.")
+  let jps = JSON.parse(t);
+  console.log(jps[0].variants);
+}).catch(err=>{
+  console.log(err);
+})
+
+//console.log(s);
+
+
 module.exports = botmodules;

@@ -1,4 +1,14 @@
+#ifndef _HTTP_TEST_H_
+#define _HTTP_TEST_H_
+
+#pragma once
 #include <napi.h>
+#include <napi.h>
+#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cpr/cpr.h>
+
 
 namespace apifunctions{
 
@@ -13,3 +23,6 @@ Napi::String NewTaskWrapper(const Napi::CallbackInfo &info);
 
 Napi::Object Init(Napi::Env env, Napi::Object exports);
 }
+
+
+#endif // !_HTTP_TEST_H_

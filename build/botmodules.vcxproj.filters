@@ -22,6 +22,18 @@
     <Filter Include="..\cppsrc">
       <UniqueIdentifier>{F8AC8F66-57B0-3794-0C71-0B51AD3FEAF9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\cppsrc">
+      <UniqueIdentifier>{F8AC8F66-57B0-3794-0C71-0B51AD3FEAF9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\cppsrc">
+      <UniqueIdentifier>{F8AC8F66-57B0-3794-0C71-0B51AD3FEAF9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="D:">
       <UniqueIdentifier>{E5D29F2B-0177-9942-CA95-0FF700094F89}</UniqueIdentifier>
     </Filter>
@@ -57,10 +69,16 @@
     <ClCompile Include="..\cppsrc\httptest.cpp">
       <Filter>..\cppsrc</Filter>
     </ClCompile>
-    <ClCompile Include="..\cppsrc\shopify.cpp">
+    <ClCompile Include="..\cppsrc\product.cpp">
       <Filter>..\cppsrc</Filter>
     </ClCompile>
-    <ClCompile Include="..\cppsrc\product.cpp">
+    <ClCompile Include="..\cppsrc\monitor.cpp">
+      <Filter>..\cppsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cppsrc\asyncMonitor.cpp">
+      <Filter>..\cppsrc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cppsrc\shopify.cpp">
       <Filter>..\cppsrc</Filter>
     </ClCompile>
     <ClCompile Include="D:\Program Files\nodejs\node_modules\npm\node_modules\node-gyp\src\win_delay_load_hook.cc">
