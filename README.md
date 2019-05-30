@@ -10,6 +10,7 @@ Synchronous versions have Sync appended to end of Async version
 ```js
 getAllProducts(domain)
 getAllProductsSync(domain)
+getAllClean(domain)
 findByTitle(domain, keywords)
 findByTitleSync(domain, keywords)
 findByHandle(domain, keywords)
