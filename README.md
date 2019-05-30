@@ -1,4 +1,4 @@
-Bot_Modules
+__**Bot_Modules**__
 
 __Usage__
 ```js
@@ -17,6 +17,7 @@ findByHandleSync(domain, keywords)
 getSizes(domain, productID)
 outstockSizes(domain, productID)
 instockSizes(domain, productID)
+checkRestock(domain, productID, variants)
 ```
 
 __API Functions__
