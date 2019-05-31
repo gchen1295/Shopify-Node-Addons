@@ -16,11 +16,12 @@ void Product::removeVariant(std::string id)
   }
 }
 
-Product::Product(std::string id, std::string title, std::string handle)
+Product::Product(std::string id, std::string title, std::string handle, std::string image)
 {
   this->id = id;
   this->title = title;
   this->handle = handle;
+  this->image = image;
 }
 Product::~Product()
 {
@@ -52,7 +53,12 @@ std::string Product::getVariants()
     vstr += "\"available\":\"" + var.second->getAvailable() + "\"";
     vstr += "},";
   }
-  vstr.pop_back();
+  
+  if(vstr == ""){
+    vstr = "{}";
+  }else{
+    vstr.pop_back();
+  }
   return vstr;
 }
 
@@ -63,8 +69,9 @@ void Product::printFields()
   std::cout << "\"id\":\"" + id + "\",\n";
   std::cout << "\"title\":\"" + title + "\",\n";
   std::cout << "\"handle\":\"" + handle + "\",\n";
+  std::cout << "\"image\":\"" + image + "\",\n";
   std::cout << "\"variants\":[";
-  std::cout << getVariants() << '\n';
+  std::cout << getVariants();
   std::cout << "]}\n";
 }
 
@@ -77,6 +84,7 @@ std::string Product::getProduct()
   jsn += "\"id\":\"" + id + "\",";
   jsn += "\"title\":\"" + title + "\",";
   jsn += "\"handle\":\"" + handle + "\",";
+  jsn += "\"image\":\"" + image + "\",";
   jsn += "\"variants\":[";
   jsn += getVariants();
   jsn += "]}";
@@ -96,6 +104,11 @@ std::string Product::getTitle()
 std::string Product::getHandle()
 {
   return this->handle;
+}
+
+std::string Product::getImage()
+{
+  return this->image;
 }
 
 // ================= VARIANTS ===========================
@@ -143,10 +156,10 @@ bool Variant::isAvailable()
 
 // ================= PRODUCTS COLLECTION ===========================
 
-void ProductCollection::createProduct(std::string id, std::string title, std::string handle)
+void ProductCollection::createProduct(std::string id, std::string title, std::string handle, std::string image)
 {
   //Creates our product and inserts into map with id as identifier
-  Product *p = new Product(id, title, handle);
+  Product *p = new Product(id, title, handle, image);
   products.emplace(id, p);
 }
 
@@ -170,15 +183,14 @@ void ProductCollection::printAll()
 
 Product *ProductCollection::findProductByID(std::string id)
 {
-  auto f = products.find(id);
-  if (f != products.end())
+  for (auto &f : products)
   {
-    return f->second;
+    if (f.second->getID() == id)
+    {
+      return f.second;
+    }
   }
-  else
-  {
-    return nullptr;
-  }
+  return nullptr;
 }
 
 Product *ProductCollection::findProductByTitle(std::string name)
@@ -202,4 +214,16 @@ Product *ProductCollection::findProductByHandle(std::string name)
     }
   }
   return nullptr;
+}
+
+std::string ProductCollection::getProducts()
+{
+  std::string response = "";
+  for (auto &m : products)
+  {
+    response += m.second->getProduct() + ",";
+  }
+  response.pop_back();
+  response = "[" + response + "]";
+  return response;
 }

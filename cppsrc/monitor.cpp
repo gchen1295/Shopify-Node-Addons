@@ -26,26 +26,71 @@ std::string Monitor::getAllProducts(std::string domain)
 {
   std::string url = "https://" + domain + "/products.json";
   auto r1 = cpr::Get(cpr::Url(url));
-  // static const char *kTypeNames[] =
-  //     {"Null", "False", "True", "Object", "Array", "String", "Number"};
-
-  // for(rapidjson::SizeType i = 0; i < p.Size(); i++){
-  //   std::cout << p[i]["title"].GetString() << std::endl;
-  //   std::cout << p[i]["handle"].GetString() << std::endl;
-  // }
   if (r1.status_code >= 400)
   {
-    return std::to_string(r1.status_code);
+    std::cout << "Page returned a " << std::to_string(r1.status_code) << " error\n";
+    return "Error";
   }
   else if (r1.status_code == 0)
   {
-    return NULL;
+    return "Page not found";
   }
   else
   {
     return r1.text;
   }
 };
+
+std::string Monitor::getAllCleaned(std::string domain)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::string products = Monitor::getAllProducts(domain);
+
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string title = p[i]["title"].GetString();
+      std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      std::string handle = p[i]["handle"].GetString();
+      std::string image = p[i]["images"][0]["src"].GetString();
+      pc.createProduct(id, title, handle, image);
+
+      // Loop through our variants
+      const rapidjson::Value &var = doc["products"][i]["variants"];
+      for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+      {
+        std::string id2 = std::to_string(var[i]["id"].GetInt64());
+        std::string vtitle = var[i]["title"].GetString();
+        std::string sku = var[i]["sku"].GetString();
+        std::string price = var[i]["price"].GetString();
+        std::string available;
+        if (var[i]["available"].GetBool())
+        {
+          available = "true";
+        }
+        else
+        {
+          available = "false";
+        }
+        pc.addVariant(id, id2, vtitle, sku, price, available);
+      }
+    }
+    std::string response = pc.getProducts();
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+}
 
 std::string Monitor::findProductByTitle(std::string domain, std::vector<std::string> keywords)
 {
@@ -56,86 +101,195 @@ std::string Monitor::findProductByTitle(std::string domain, std::vector<std::str
   unique(keywords);
   std::string products = Monitor::getAllProducts(domain);
 
-  rapidjson::Document doc;
-  doc.Parse(products.c_str());
-  assert(doc["products"].IsArray());
-  const rapidjson::Value &p = doc["products"];
-
-  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+  if (products != "Page not found" && products != "Error")
   {
-    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+    {
+      for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+      {
+        std::string kw = *itr;
+        std::string title = p[i]["title"].GetString();
+        std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+
+        if (title.find(kw) != std::string::npos)
+        {
+          //std::cout << "Found in title: " << title << std::endl;
+          //std::cout << "Matched keyword: " << kw << std::endl;
+
+          //BUILD OUR PRODUCT
+          std::string id = std::to_string(p[i]["id"].GetInt64());
+          std::string handle = p[i]["handle"].GetString();
+          std::string image = p[i]["images"][0]["src"].GetString();
+          pc.createProduct(id, title, handle, image);
+
+          // Loop through our variants
+          const rapidjson::Value &var = doc["products"][i]["variants"];
+          for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+          {
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            std::string available;
+            if (var[i]["available"].GetBool())
+            {
+              available = "true";
+            }
+            else
+            {
+              available = "false";
+            }
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+          foundtitle.push_back(title);
+        }
+      }
+    }
+    //For each product in product title and product handle eliminate all that dont contain a kw
+    unique(foundtitle);
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
     {
       std::string kw = *itr;
-      std::string title = p[i]["title"].GetString();
-      std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
-      std::transform(title.begin(), title.end(), title.begin(), ::tolower);
-
-      if (title.find(kw) != std::string::npos)
+      std::vector<std::string>::iterator itr2;
+      for (itr2 = foundtitle.begin(); itr2 != foundtitle.end(); ++itr2)
       {
-        //std::cout << "Found in title: " << title << std::endl;
-        //std::cout << "Matched keyword: " << kw << std::endl;
-
-        //BUILD OUR PRODUCT
-        std::string id = std::to_string(p[i]["id"].GetInt64());
-        std::string handle = p[i]["handle"].GetString();
-        pc.createProduct(id, title, handle);
-
-        // Loop through our variants
-        const rapidjson::Value &var = doc["products"][i]["variants"];
-        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+        std::string title = *itr2;
+        if (title.find(kw) == std::string::npos)
         {
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          std::string available;
-          if (var[i]["available"].GetBool())
-          {
-            available = "true";
-          }
-          else
-          {
-            available = "false";
-          }
-          pc.addVariant(id, id2, vtitle, sku, price, available);
+          foundtitle.erase(itr2--);
         }
-        foundtitle.push_back(title);
       }
     }
-  }
-  //For each product in product title and product handle eliminate all that dont contain a kw
-  unique(foundtitle);
-  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
-  {
-    std::string kw = *itr;
-    std::vector<std::string>::iterator itr2;
-    for (itr2 = foundtitle.begin(); itr2 != foundtitle.end(); ++itr2)
+    std::string response = "";
+    for (itr = foundtitle.begin(); itr != foundtitle.end(); ++itr)
     {
-      std::string title = *itr2;
-      if (title.find(kw) == std::string::npos)
+      Product *pt = pc.findProductByTitle(*itr);
+      if (pt != nullptr)
       {
-        foundtitle.erase(itr2--);
+        response += pt->getProduct();
+        response += ",";
+      }
+      delete pt;
+    }
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+  //BUILD PRODUCT OBJECT OR RETURN ARRAY OF PRODUCTS MATCHING?
+  // For each product in our array create a json object
+}
+
+std::string Monitor::searchProductByTitle(std::string product, std::vector<std::string> keywords)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::vector<std::string>::iterator itr;
+  std::vector<std::string> foundtitle;
+  unique(keywords);
+  std::string products = product;
+
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+    {
+      for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+      {
+        std::string kw = *itr;
+        std::string title = p[i]["title"].GetString();
+        std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+
+        if (title.find(kw) != std::string::npos)
+        {
+          //std::cout << "Found in title: " << title << std::endl;
+          //std::cout << "Matched keyword: " << kw << std::endl;
+
+          //BUILD OUR PRODUCT
+          std::string id = std::to_string(p[i]["id"].GetInt64());
+          std::string handle = p[i]["handle"].GetString();
+          std::string image = p[i]["images"][0]["src"].GetString();
+          pc.createProduct(id, title, handle, image);
+
+          // Loop through our variants
+          const rapidjson::Value &var = doc["products"][i]["variants"];
+          for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+          {
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            std::string available;
+            if (var[i]["available"].GetBool())
+            {
+              available = "true";
+            }
+            else
+            {
+              available = "false";
+            }
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+          foundtitle.push_back(title);
+        }
       }
     }
-  }
-  std::string response = "";
-  for (itr = foundtitle.begin(); itr != foundtitle.end(); ++itr)
-  {
-    Product *pt = pc.findProductByTitle(*itr);
-    if (pt != nullptr)
+    //For each product in product title and product handle eliminate all that dont contain a kw
+    unique(foundtitle);
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
     {
-      response += pt->getProduct();
-      response += ",";
+      std::string kw = *itr;
+      std::vector<std::string>::iterator itr2;
+      for (itr2 = foundtitle.begin(); itr2 != foundtitle.end(); ++itr2)
+      {
+        std::string title = *itr2;
+        if (title.find(kw) == std::string::npos)
+        {
+          foundtitle.erase(itr2--);
+        }
+      }
     }
-    delete pt;
-  }
-  if (response != "")
-  {
-    response.pop_back();
-  }
-  response = "[" + response + "]";
+    std::string response = "";
+    for (itr = foundtitle.begin(); itr != foundtitle.end(); ++itr)
+    {
+      Product *pt = pc.findProductByTitle(*itr);
+      if (pt != nullptr)
+      {
+        response += pt->getProduct();
+        response += ",";
+      }
+      delete pt;
+    }
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
 
-  return response;
+    return response;
+  }
+  else
+  {
+    return products;
+  }
   //BUILD PRODUCT OBJECT OR RETURN ARRAY OF PRODUCTS MATCHING?
   // For each product in our array create a json object
 }
@@ -145,54 +299,61 @@ std::string Monitor::outofstockSizes(std::string domain, std::string productID)
   ProductCollection pc = ProductCollection();
   int i = 0;
   std::string products = Monitor::getAllProducts(domain);
-
-  rapidjson::Document doc;
-  doc.Parse(products.c_str());
-  assert(doc["products"].IsArray());
-  const rapidjson::Value &p = doc["products"];
-
-  for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+  if (products != "Page not found" && products != "Error")
   {
-    std::string title = p[i]["title"].GetString();
-    std::transform(title.begin(), title.end(), title.begin(), ::tolower);
-    std::string id = std::to_string(p[i]["id"].GetInt64());
-    std::string handle = p[i]["handle"].GetString();
-    if (id == productID)
-    {
-      pc.createProduct(id, title, handle);
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
 
-      // Loop through our variants
-      const rapidjson::Value &var = doc["products"][i]["variants"];
-      for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      std::string handle = p[i]["handle"].GetString();
+      if (id == productID)
       {
-        if (!var[i]["available"].GetBool())
+        std::string title = p[i]["title"].GetString();
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+        std::string image = p[i]["images"][0]["src"].GetString();
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
         {
-          std::string available = "false";
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          pc.addVariant(id, id2, vtitle, sku, price, available);
+          if (!var[i]["available"].GetBool())
+          {
+            std::string available = "false";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
         }
       }
     }
-  }
-  std::string response = "";
-  Product *pt = pc.findProductByID(productID);
-  if (pt != nullptr)
-  {
-    response += pt->getProduct();
-    response += ",";
-  }
-  delete pt;
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
 
-  if (response != "")
-  {
-    response.pop_back();
-  }
-  response = "[" + response + "]";
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
 
-  return response;
+    return response;
+  }
+  else
+  {
+    return products;
+  }
 }
 
 std::string Monitor::getSizes(std::string domain, std::string productID)
@@ -200,121 +361,210 @@ std::string Monitor::getSizes(std::string domain, std::string productID)
   ProductCollection pc = ProductCollection();
   int i = 0;
   std::string products = Monitor::getAllProducts(domain);
-  rapidjson::Document doc;
-  doc.Parse(products.c_str());
-  assert(doc["products"].IsArray());
-  const rapidjson::Value &p = doc["products"];
-
-  for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+  if (products != "Page not found" && products != "Error")
   {
-    std::string title = p[i]["title"].GetString();
-    std::transform(title.begin(), title.end(), title.begin(), ::tolower);
-    std::string id = std::to_string(p[i]["id"].GetInt64());
-    std::string handle = p[i]["handle"].GetString();
-    if (id == productID)
-    {
-      std::cout << "Found in title: " << title << std::endl;
-      //std::cout << "Matched keyword: " << kw << std::endl;
-      pc.createProduct(id, title, handle);
 
-      // Loop through our variants
-      const rapidjson::Value &var = doc["products"][i]["variants"];
-      for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      if (id == productID)
       {
-        if (var[i]["available"].GetBool())
+
+        std::string handle = p[i]["handle"].GetString();
+        std::string image = p[i]["images"][0]["src"].GetString();
+        std::string title = p[i]["title"].GetString();
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+        //std::cout << "Found in title: " << title << std::endl;
+        //std::cout << "Matched keyword: " << kw << std::endl;
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
         {
-          std::string available = "true";
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          pc.addVariant(id, id2, vtitle, sku, price, available);
-        }
-        else
-        {
-          std::string available = "false";
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          pc.addVariant(id, id2, vtitle, sku, price, available);
+          if (var[i]["available"].GetBool())
+          {
+            std::string available = "true";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+          else
+          {
+            std::string available = "false";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
         }
       }
     }
-  }
 
-  //For each product in product title and product handle eliminate all that dont contain a kw
-  std::string response = "";
-  Product *pt = pc.findProductByID(productID);
-  if (pt != nullptr)
+    //For each product in product title and product handle eliminate all that dont contain a kw
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
+
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+
+    return response;
+  }
+  else
   {
-    response += pt->getProduct();
-    response += ",";
+    return products;
   }
-  delete pt;
-
-  if (response != "")
-  {
-    response.pop_back();
-  }
-  response = "[" + response + "]";
-
-  return response;
 }
+std::string Monitor::getRestocked(std::string domain, std::string productID, std::vector<std::string> variants)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::string products = Monitor::getAllProducts(domain);
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+    // Search for product
+    // Compare variants
 
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      if (id == productID)
+      {
+        std::string handle = p[i]["handle"].GetString();
+        std::string image = p[i]["images"][0]["src"].GetString();
+        std::string title = p[i]["title"].GetString();
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+        //std::cout << "Found in title: " << title << std::endl;
+        //std::cout << "Matched keyword: " << kw << std::endl;
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        std::vector<std::string>::iterator iter1;
+        for (iter1 = variants.begin(); iter1 != variants.end(); iter1++)
+        {
+          for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+          {
+            if (*iter1 == std::to_string(var[i]["id"].GetInt64()))
+            {
+              if (var[i]["available"].GetBool())
+              {
+                std::string available = "true";
+                std::string id2 = std::to_string(var[i]["id"].GetInt64());
+                std::string vtitle = var[i]["title"].GetString();
+                std::string sku = var[i]["sku"].GetString();
+                std::string price = var[i]["price"].GetString();
+                pc.addVariant(id, id2, vtitle, sku, price, available);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    //For each product in product title and product handle eliminate all that dont contain a kw
+    std::string response = "[";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
+
+    if (response != "[")
+    {
+      response.pop_back();
+    }
+    response += "]";
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+}
 std::string Monitor::instockSizes(std::string domain, std::string productID)
 {
   ProductCollection pc = ProductCollection();
   int i = 0;
   std::string products = Monitor::getAllProducts(domain);
-
-  rapidjson::Document doc;
-  doc.Parse(products.c_str());
-  assert(doc["products"].IsArray());
-  const rapidjson::Value &p = doc["products"];
-
-  for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+  if (products != "Page not found" && products != "Error")
   {
-    std::string title = p[i]["title"].GetString();
-    std::transform(title.begin(), title.end(), title.begin(), ::tolower);
-    std::string id = std::to_string(p[i]["id"].GetInt64());
-    std::string handle = p[i]["handle"].GetString();
-    if (id == productID)
-    {
-      pc.createProduct(id, title, handle);
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
 
-      // Loop through our variants
-      const rapidjson::Value &var = doc["products"][i]["variants"];
-      for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string title = p[i]["title"].GetString();
+      std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      std::string handle = p[i]["handle"].GetString();
+      std::string image = p[i]["images"][0]["src"].GetString();
+      if (id == productID)
       {
-        if (var[i]["available"].GetBool())
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
         {
-          std::string available = "true";
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          pc.addVariant(id, id2, vtitle, sku, price, available);
+          if (var[i]["available"].GetBool())
+          {
+            std::string available = "true";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
         }
       }
     }
-  }
-  std::string response = "";
-  Product *pt = pc.findProductByID(productID);
-  if (pt != nullptr)
-  {
-    response += pt->getProduct();
-    response += ",";
-  }
-  delete pt;
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
 
-  if (response != "")
-  {
-    response.pop_back();
-  }
-  response = "[" + response + "]";
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
 
-  return response;
+    return response;
+  }
+  else
+  {
+    return products;
+  }
 }
 std::string Monitor::findProductByHandle(std::string domain, std::vector<std::string> keywords)
 {
@@ -324,83 +574,385 @@ std::string Monitor::findProductByHandle(std::string domain, std::vector<std::st
   std::vector<std::string> foundhandle;
   unique(keywords);
   std::string products = Monitor::getAllProducts(domain);
-
-  rapidjson::Document doc;
-  doc.Parse(products.c_str());
-  assert(doc["products"].IsArray());
-  const rapidjson::Value &p = doc["products"];
-  // === FIND ===
-  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+  if (products != "Page not found" && products != "Error")
   {
-    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+    // === FIND ===
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+    {
+      for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+      {
+        std::string kw = *itr;
+        std::string handle = p[i]["handle"].GetString();
+
+        std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
+        std::transform(handle.begin(), handle.end(), handle.begin(), ::tolower);
+        if (handle.find(kw) != std::string::npos)
+        {
+          //BUILD OUR PRODUCT
+          std::string title = p[i]["title"].GetString();
+          std::string id = std::to_string(p[i]["id"].GetInt64());
+          std::string image = p[i]["images"][0]["src"].GetString();
+          std::string handle = p[i]["handle"].GetString();
+          pc.createProduct(id, title, handle, image);
+
+          // Loop through our variants
+          const rapidjson::Value &var = doc["products"][i]["variants"];
+          for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+          {
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            std::string available;
+            if (var[i]["available"].GetBool())
+            {
+              available = "true";
+            }
+            else
+            {
+              available = "false";
+            }
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+          foundhandle.push_back(handle);
+        }
+      }
+    }
+    //For each product in product title and product handle eliminate all that dont contain a kw   === FILTER ===
+    unique(foundhandle);
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
     {
       std::string kw = *itr;
-      std::string handle = p[i]["handle"].GetString();
-      std::string title = p[i]["title"].GetString();
-      std::string id = std::to_string(p[i]["id"].GetInt64());
-      std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
-      std::transform(handle.begin(), handle.end(), handle.begin(), ::tolower);
-      if (handle.find(kw) != std::string::npos)
+      std::vector<std::string>::iterator itr2;
+      for (itr2 = foundhandle.begin(); itr2 != foundhandle.end(); ++itr2)
       {
-        //BUILD OUR PRODUCT
-        std::string id = p[i]["title"].GetString();
+        std::string handle = *itr2;
+        if (handle.find(kw) == std::string::npos)
+        {
+          foundhandle.erase(itr2--);
+        }
+      }
+    }
+    std::string response = "";
+    for (itr = foundhandle.begin(); itr != foundhandle.end(); ++itr)
+    {
+      Product *pt = pc.findProductByHandle(*itr);
+      if (pt != nullptr)
+      {
+        response += pt->getProduct();
+        response += ",";
+      }
+      delete pt;
+    }
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+  //BUILD OUR PRODUCT OBJECT HERE
+}
+
+std::string Monitor::searchProductByHandle(std::string product, std::vector<std::string> keywords)
+{
+  int i = 0;
+  ProductCollection pc = ProductCollection();
+  std::vector<std::string>::iterator itr;
+  std::vector<std::string> foundhandle;
+  unique(keywords);
+  std::string products = product;
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+    // === FIND ===
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+    {
+      for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+      {
+        std::string kw = *itr;
         std::string handle = p[i]["handle"].GetString();
-        pc.createProduct(id, title, handle);
+
+        std::transform(kw.begin(), kw.end(), kw.begin(), ::tolower);
+        std::transform(handle.begin(), handle.end(), handle.begin(), ::tolower);
+        if (handle.find(kw) != std::string::npos)
+        {
+          //BUILD OUR PRODUCT
+          std::string title = p[i]["title"].GetString();
+          std::string id = std::to_string(p[i]["id"].GetInt64());
+          std::string image = p[i]["images"][0]["src"].GetString();
+          std::string handle = p[i]["handle"].GetString();
+          pc.createProduct(id, title, handle, image);
+
+          // Loop through our variants
+          const rapidjson::Value &var = doc["products"][i]["variants"];
+          for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+          {
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            std::string available;
+            if (var[i]["available"].GetBool())
+            {
+              available = "true";
+            }
+            else
+            {
+              available = "false";
+            }
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+          foundhandle.push_back(handle);
+        }
+      }
+    }
+    //For each product in product title and product handle eliminate all that dont contain a kw   === FILTER ===
+    unique(foundhandle);
+    for (itr = keywords.begin(); itr != keywords.end(); ++itr)
+    {
+      std::string kw = *itr;
+      std::vector<std::string>::iterator itr2;
+      for (itr2 = foundhandle.begin(); itr2 != foundhandle.end(); ++itr2)
+      {
+        std::string handle = *itr2;
+        if (handle.find(kw) == std::string::npos)
+        {
+          foundhandle.erase(itr2--);
+        }
+      }
+    }
+    std::string response = "";
+    for (itr = foundhandle.begin(); itr != foundhandle.end(); ++itr)
+    {
+      Product *pt = pc.findProductByHandle(*itr);
+      if (pt != nullptr)
+      {
+        response += pt->getProduct();
+        response += ",";
+      }
+      delete pt;
+    }
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+  //BUILD OUR PRODUCT OBJECT HERE
+}
+
+std::string Monitor::searchSizes(std::string product, std::string productID)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::string products = product;
+  if (products != "Page not found" && products != "Error")
+  {
+
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      if (id == productID)
+      {
+
+        std::string handle = p[i]["handle"].GetString();
+        std::string image = p[i]["images"][0]["src"].GetString();
+        std::string title = p[i]["title"].GetString();
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+        //std::cout << "Found in title: " << title << std::endl;
+        //std::cout << "Matched keyword: " << kw << std::endl;
+        pc.createProduct(id, title, handle, image);
 
         // Loop through our variants
         const rapidjson::Value &var = doc["products"][i]["variants"];
         for (rapidjson::SizeType i = 0; i < var.Size(); i++)
         {
-          std::string id2 = std::to_string(var[i]["id"].GetInt64());
-          std::string vtitle = var[i]["title"].GetString();
-          std::string sku = var[i]["sku"].GetString();
-          std::string price = var[i]["price"].GetString();
-          std::string available;
           if (var[i]["available"].GetBool())
           {
-            available = "true";
+            std::string available = "true";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
           }
           else
           {
-            available = "false";
+            std::string available = "false";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
           }
-          pc.addVariant(id, id2, vtitle, sku, price, available);
         }
-        foundhandle.push_back(handle);
       }
     }
-  }
-  //For each product in product title and product handle eliminate all that dont contain a kw   === FILTER ===
-  unique(foundhandle);
-  for (itr = keywords.begin(); itr != keywords.end(); ++itr)
-  {
-    std::string kw = *itr;
-    std::vector<std::string>::iterator itr2;
-    for (itr2 = foundhandle.begin(); itr2 != foundhandle.end(); ++itr2)
-    {
-      std::string handle = *itr2;
-      if (handle.find(kw) == std::string::npos)
-      {
-        foundhandle.erase(itr2--);
-      }
-    }
-  }
-  std::string response = "";
-  for (itr = foundhandle.begin(); itr != foundhandle.end(); ++itr)
-  {
-    Product *pt = pc.findProductByHandle(*itr);
+
+    //For each product in product title and product handle eliminate all that dont contain a kw
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
     if (pt != nullptr)
     {
       response += pt->getProduct();
       response += ",";
     }
     delete pt;
+
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+
+    return response;
   }
-  if (response != "")
+  else
   {
-    response.pop_back();
+    return products;
   }
-  response = "[" + response + "]";
-  return response;
-  //BUILD OUR PRODUCT OBJECT HERE
+}
+std::string Monitor::searchOutofstockSizes(std::string product, std::string productID)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::string products = product;
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      std::string handle = p[i]["handle"].GetString();
+      if (id == productID)
+      {
+        std::string title = p[i]["title"].GetString();
+        std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+        std::string image = p[i]["images"][0]["src"].GetString();
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+        {
+          if (!var[i]["available"].GetBool())
+          {
+            std::string available = "false";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+        }
+      }
+    }
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
+
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+
+    return response;
+  }
+  else
+  {
+    return products;
+  }
+}
+std::string Monitor::searchInstockSizes(std::string product, std::string productID)
+{
+  ProductCollection pc = ProductCollection();
+  int i = 0;
+  std::string products = product;
+  if (products != "Page not found" && products != "Error")
+  {
+    rapidjson::Document doc;
+    doc.Parse(products.c_str());
+    assert(doc["products"].IsArray());
+    const rapidjson::Value &p = doc["products"];
+
+    for (rapidjson::SizeType i = 0; i < p.Size(); ++i)
+    {
+      std::string title = p[i]["title"].GetString();
+      std::transform(title.begin(), title.end(), title.begin(), ::tolower);
+      std::string id = std::to_string(p[i]["id"].GetInt64());
+      std::string handle = p[i]["handle"].GetString();
+      std::string image = p[i]["images"][0]["src"].GetString();
+      if (id == productID)
+      {
+        pc.createProduct(id, title, handle, image);
+
+        // Loop through our variants
+        const rapidjson::Value &var = doc["products"][i]["variants"];
+        for (rapidjson::SizeType i = 0; i < var.Size(); i++)
+        {
+          if (var[i]["available"].GetBool())
+          {
+            std::string available = "true";
+            std::string id2 = std::to_string(var[i]["id"].GetInt64());
+            std::string vtitle = var[i]["title"].GetString();
+            std::string sku = var[i]["sku"].GetString();
+            std::string price = var[i]["price"].GetString();
+            pc.addVariant(id, id2, vtitle, sku, price, available);
+          }
+        }
+      }
+    }
+    std::string response = "";
+    Product *pt = pc.findProductByID(productID);
+    if (pt != nullptr)
+    {
+      response += pt->getProduct();
+      response += ",";
+    }
+    delete pt;
+
+    if (response != "")
+    {
+      response.pop_back();
+    }
+    response = "[" + response + "]";
+
+    return response;
+  }
+  else
+  {
+    return products;
+  }
 }

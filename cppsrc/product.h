@@ -28,7 +28,7 @@ private:
 class Product
 {
 public:
-  Product(std::string id, std::string title, std::string handle);
+  Product(std::string id, std::string title, std::string handle, std::string image);
   ~Product();
   void addVariant(std::string id, std::string title, std::string sku, std::string price, std::string available);
   void removeVariant(std::string id);
@@ -38,20 +38,23 @@ public:
   std::string getTitle();
   std::string getHandle();
   std::string getVariants();
+  std::string getImage();///
 
 private:
   std::string id;
   std::string title;
   std::string handle;
+  std::string image;
   std::unordered_map<std::string, Variant *> variants;
 };
 
 class ProductCollection
 {
 public:
-  void createProduct(std::string id, std::string title, std::string handle);
+  void createProduct(std::string id, std::string title, std::string handle, std::string image);
   void addVariant(std::string productID, std::string id, std::string title, std::string sku, std::string price, std::string available);
   void removeProduct(std::string id);
+  std::string getProducts();
   void printAll();
   Product *findProductByID(std::string id);
   Product *findProductByTitle(std::string title);
