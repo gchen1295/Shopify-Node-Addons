@@ -19,6 +19,11 @@ getSizes(domain, productID)
 outstockSizes(domain, productID)
 instockSizes(domain, productID)
 checkRestock(domain, productID, variants)
+searchByTitle(products, keywords)
+searchByHandle(products, keywords)
+searchSizes(products, productID)
+searchOutstockSizes(products, productID)
+SearchInstockSizes(products, productID)
 ```
 
 __API Functions__
