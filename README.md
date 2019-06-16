@@ -8,22 +8,30 @@ __Monitor Functions__
 Most functions have a sychronous and asynchronous version.
 Synchronous versions have Sync appended to end of Async version
 ```js
-getAllProducts(domain)
+getAllProductsLocal(domain)
+getAllProducts(domain, proxy)
 getAllProductsSync(domain)
-getAllClean(domain)
-findByTitle(domain, keywords)
+getAllCleanLocal(domain)
+getAllClean(domain, proxy)
+findByTitleLocal(domain, keywords)
+findByTitle(domain, proxy, keywords)
 findByTitleSync(domain, keywords)
-findByHandle(domain, keywords)
+findByHandleLocal(domain, keywords)
+findByHandle(domain, proxy, keywords)
 findByHandleSync(domain, keywords)
 getSizes(domain, productID)
-outstockSizes(domain, productID)
-instockSizes(domain, productID)
-checkRestock(domain, productID, variants)
+getSizes(domain, proxy, productID)
+outstockSizesLocal(domain, productID)
+outstockSizes(domain, proxy, productID)
+instockSizesLocal(domain, productID)
+instockSizes(domain, proxy, productID)
+checkRestockLocal(domain, productID, variants)
+checkRestock(domain, proxy, productID, variants)
 searchByTitle(products, keywords)
 searchByHandle(products, keywords)
 searchSizes(products, productID)
 searchOutstockSizes(products, productID)
-SearchInstockSizes(products, productID)
+searchInstockSizes(products, productID)
 ```
 
 __API Functions__
