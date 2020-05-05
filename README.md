@@ -1,6 +1,7 @@
 __**Bot_Modules**__
 
 Has not been updated for any changes after Anti-bot protection was added.
+Library provides a basic API for checkout on the E-Commerce platform Shopify. Functions are written in C++ and must be compiled using CMake or any other C++ compiler. To use with Electron use [electron-rebuild](https://www.electronjs.org/docs/tutorial/using-native-node-modules).
 
 __Usage__
 ```js
