@@ -1,12 +1,12 @@
 #include "httptest.h"
 
 std::string apifunctions::createLicense(){
-  auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/admin/createLicense"}, cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},cpr::Payload{{}});
+  auto r = cpr::Post(cpr::Url{/*LICENSE API ENDPOINT HERE*/}, cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},cpr::Payload{{}});
   return r.text;
 }
 
 std::string apifunctions::authLicense(std::string key, std::string hwid){
-  auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/license/login"}, 
+  auto r = cpr::Post(cpr::Url{/*AUTH API ENDPOINT HERE*/}, 
                       cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},
                       cpr::Payload{ {"license", key },
                                     {"hwid", hwid } });
@@ -19,7 +19,7 @@ std::string apifunctions::createTask(std::string website, std::string keywords, 
   // Clean url here
   // Parse keywords here
   
-  auto r = cpr::Post(cpr::Url{"https://api-shopify.incizzle.ca/task/create"},
+  auto r = cpr::Post(cpr::Url{/*TASK CREATION API ENDPOINT HERE*/},
                       cpr::Header{{"Content-Type", "application/x-www-form-urlencoded"}},
                       cpr::Payload{ {"website", website },
                                     {"keywords", keywords },
