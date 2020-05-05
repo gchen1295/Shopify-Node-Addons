@@ -1,5 +1,7 @@
 __**Bot_Modules**__
 
+Has not been updated for any changes after Anti-bot protection was added.
+
 __Usage__
 ```js
 let shopify = require("./Release/botmodules.node")
