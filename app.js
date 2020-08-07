@@ -6,58 +6,6 @@ const {
 const util = require('util')
 const Shopify = require('./build/Release/botmodules.node');
 
-// async function getProducts(domain) {
-//   let r = await axios.get(`https://${domain}/products.json`);
-//   return (r.data['products']);
-// }
-
-// async function cartProductNode(domain, variant) {
-//   let r = await axios.post(`https://${domain}/cart/add.json`, {
-//     id: variant,
-//     quantity: "1"
-//   });
-//   return (r.data);
-// }
-// let GetAllcpp = () => {
-//   return new Promise((res, rej) => {
-//     res(botmodules.getAllProducts("lapstoneandhammer.com"));
-//   })
-// }
-
-// let test1 = async () => {
-//   let s1 = performance.now();
-//   for (let i = 0; i < 15; i++) {
-//     let t = await GetAllcpp();
-//     console.log(t)
-//   }
-//   let e1 = performance.now();
-//   let s2 = performance.now();
-//   for (let i = 0; i < 15; i++) {
-//     await getProducts("centre214.com");
-//     //console.log(t);
-//   }
-//   let e2 = performance.now();
-//   let d1 = e1 - s1;
-//   let d2 = e2 - s2;
-//   console.log(`Time of CPP Native: ${d1}`)
-//   console.log(`Time of Node Module: ${d2}`)
-// }
-// let test2 = async () => {
-//   let s1 = performance.now();
-//   let t1 = await botmodules.cartProduct("lapstoneandhammer.com", "19339429773369");
-//   let j1 = JSON.parse(t1);
-//   let e1 = performance.now();
-//   let s2 = performance.now();
-//   let t2 = await cartProductNode("deadstock.ca", "22337760821333");
-//   let e2 = performance.now();
-//   let d1 = e1 - s1;
-//   let d2 = e2 - s2;
-//   console.log(`Time of CPP Native: ${d1}`)
-//   console.log(`Time of Node Only: ${d2}`)
-
-//}
-
-
 async function monitorProduct(domain, keywords) {
   let start = performance.now()
   let toWatch = [];
@@ -127,5 +75,4 @@ async function test() {
   console.log(JSON.parse(f1));
 }
 
-test()
 module.exports = Shopify;
